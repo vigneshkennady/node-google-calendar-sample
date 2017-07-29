@@ -8,7 +8,7 @@ const calendarIdList = CONFIG.calendarId;
 examples();
 
 function examples() {
-	listAllEventsInCalendar(calendarIdList['bb']);
+	listAllEventsInCalendar(calendarIdList['primary']);
 	// listSingleEventsWithinDateRange(calendarIdList['primary'], '2017-05-20T06:00:00+08:00', '2017-05-25T22:00:00+08:00', '');
 	// listRecurringEventsWithinDateRange(calendarIdList['drone'], '2017-05-20T06:00:00+08:00', '2017-05-20T22:00:00+08:00', '');
 	// insertEvent(calendarIdList['primary'], 'TestEventName', '2017-05-20T12:00:00+08:00', '2017-05-20T15:00:00+08:00', 'location', 'confirmed', 'some description here');

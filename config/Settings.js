@@ -2,11 +2,10 @@
 const SERVICE_ACCT_ID = 'priyam1@melodic-eye-175118.iam.gserviceaccount.com';
 //const KEYFILE = 'priyam1-google-key.json';				//path to pem key
 const TIMEZONE = 'UTC+08:00';
-const CALENDAR_ID = 'priyamayilsamy11@gmail.com'
-
-// {
-// 	'primary': 'priyamayilsamy11@gmail.com'
-// };
+const CALENDAR_ID = 
+{
+	'primary': 'priyamayilsamy11@gmail.com'
+};
 
 //Example for using json keys
 var fs = require('fs');
