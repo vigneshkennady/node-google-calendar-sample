@@ -4,6 +4,7 @@ const CONFIG = require('../config/Settings');
 const CalendarAPI = require('../src/CalendarAPI');
 const cal = new CalendarAPI(CONFIG);
 const calendarIdList = CONFIG.calendarId;
+const datetime = require('node-datetime');
 
 const express = require('express');
 const app = express();
@@ -95,10 +96,26 @@ app.get('/event', function(req, res, next) {
 
 });
 
+app.get('/listwithtime', function(req, res, next) {
+	listSingleEventsWithinDateRange(calendarIdList['primary'], req.query.startdateTime, req.query.enddateTime, '',
+				function(err, mydocs) {
+					if (err) {
+						next(err);
+					} else {
+						res.set('Content-Type', 'text/json');
+						res.status(200).json(mydocs);
+						
+					}
+				});
+
+});
+
 app.post('/insert', function(req, res, next) {
 	
+var  startime = new Date(req.body.startdateTime);
+var  endtime = new Date(req.body.enddateTime);
 
-	insertEvent(calendarIdList['primary'], 'TestEventName', '2017-05-20T12:00:00+08:00', '2017-05-20T15:00:00+08:00', 'location', 'confirmed', 'some description here', function(err, result) {
+	insertEvent(calendarIdList['primary'], req.body.summary, startime, endtime, 'location', req.body.status, req.body.description, function(err, result) {
 			if (err) {
 				next(err);
 			} else {
@@ -112,8 +129,7 @@ app.post('/insert', function(req, res, next) {
 
 app.put('/update', function(req, res, next) {
 	
-
-	updateEvent(calendarIdList['primary'], 'ef8kv3s0cghv5adu53qet3g85o', 'TestEventName', '2017-05-26T12:00:00+08:00', '2017-05-26T12:00:00+08:00','confirmed', 'some descriptions here', function(err, result) {
+	updateEvent(calendarIdList['primary'], req.body.id,req.body.status, req.body.description,function(err, result) {
 			if (err) {
 				next(err);
 			} else {
@@ -124,10 +140,6 @@ app.put('/update', function(req, res, next) {
 	
 });
 
-
-
-
-
 	app.listen(8000, function () {
 	  console.log('Example app listening on port 8000!')
 	})
@@ -136,46 +148,46 @@ app.put('/update', function(req, res, next) {
 
 //examples();
 
-function examples() {
-	//return listAllEventsInCalendar(calendarIdList['primary']);
-	// listSingleEventsWithinDateRange(calendarIdList['primary'], '2017-05-20T06:00:00+08:00', '2017-05-25T22:00:00+08:00', '');
-	// listRecurringEventsWithinDateRange(calendarIdList['drone'], '2017-05-20T06:00:00+08:00', '2017-05-20T22:00:00+08:00', '');
-	insertEvent(calendarIdList['primary'], 'TestEventName', '2017-05-20T12:00:00+08:00', '2017-05-20T15:00:00+08:00', 'location', 'confirmed', 'some description here');
-	// insertRecurringEvent(calendarIdList['primary'], 'TestRecurringEvent', '2017-05-20T10:00:00+08:00', '2017-05-20T11:00:00+08:00', 'location', 'confirmed', 'description', ['RRULE:FREQ=WEEKLY;COUNT=3'])
-	// quickAddEvent(calendarIdList['primary'], 'Breakfast 9am - 11am');
-	// getEvent(calendarIdList['primary'], 'algjb8m5jdjcgmptc3dqbcg3fc');
-	// eventInstances(calendarIdList['drone'], '04fl5s82f98ccgp5dmba3132m0');
-	// updateEvent(calendarIdList['primary'], 'algjb8m5jdjcgmptc3dqbcg3fc', 'BreakfastEvent', '2017-05-20T08:30:00+08:00', '2017-05-20T11:00:00+08:00', '', 'confirmed', 'some descriptions here');
-	// moveEvent(calendarIdList['primary'], '04fl5s82f98ccgp5dmba3132m0', calendarIdList['drone']);
-	// deleteEvent(calendarIdList['primary'], 'upnbq496e7k8l2fmctnph9jius');
+// function examples() {
+// 	//return listAllEventsInCalendar(calendarIdList['primary']);
+// 	// listSingleEventsWithinDateRange(calendarIdList['primary'], '2017-05-20T06:00:00+08:00', '2017-05-25T22:00:00+08:00', '');
+// 	// listRecurringEventsWithinDateRange(calendarIdList['drone'], '2017-05-20T06:00:00+08:00', '2017-05-20T22:00:00+08:00', '');
+// 	insertEvent(calendarIdList['primary'], 'TestEventName', '2017-05-20T12:00:00+08:00', '2017-05-20T15:00:00+08:00', 'location', 'confirmed', 'some description here');
+// 	// insertRecurringEvent(calendarIdList['primary'], 'TestRecurringEvent', '2017-05-20T10:00:00+08:00', '2017-05-20T11:00:00+08:00', 'location', 'confirmed', 'description', ['RRULE:FREQ=WEEKLY;COUNT=3'])
+// 	// quickAddEvent(calendarIdList['primary'], 'Breakfast 9am - 11am');
+// 	// getEvent(calendarIdList['primary'], 'algjb8m5jdjcgmptc3dqbcg3fc');
+// 	// eventInstances(calendarIdList['drone'], '04fl5s82f98ccgp5dmba3132m0');
+// 	// updateEvent(calendarIdList['primary'], 'algjb8m5jdjcgmptc3dqbcg3fc', 'BreakfastEvent', '2017-05-20T08:30:00+08:00', '2017-05-20T11:00:00+08:00', '', 'confirmed', 'some descriptions here');
+// 	// moveEvent(calendarIdList['primary'], '04fl5s82f98ccgp5dmba3132m0', calendarIdList['drone']);
+// 	// deleteEvent(calendarIdList['primary'], 'upnbq496e7k8l2fmctnph9jius');
 
-	// listSettings();
-	// getSettings('weekStart');
+// 	// listSettings();
+// 	// getSettings('weekStart');
 
-	// checkBusy(calendarIdList['primary'], '2017-05-20T09:00:00+08:00', '2017-05-20T21:00:00+08:00');
-}
+// 	// checkBusy(calendarIdList['primary'], '2017-05-20T09:00:00+08:00', '2017-05-20T21:00:00+08:00');
+// }
 	
 	
-	/*function listevents(calendarId,callback){
-		var params = {};
-		var eventsArray = [];
-		cal.Events.list(calendarId, params).then(function(json){
+// 	/*function listevents(calendarId,callback){
+// 		var params = {};
+// 		var eventsArray = [];
+// 		cal.Events.list(calendarId, params).then(function(json){
 		
-			for (let i = 0; i < json.length; i++) {
-				let event = {
-					id: json[i].id,
-					summary: json[i].summary,
-					location: json[i].location,
-					start: json[i].start,
-					end: json[i].end,
-					status: json[i].status
-				};
-				eventsArray.push(event);
-				console.log(eventsArray);
-			}
-			return callback(null, eventsArray);
-		});
-	}*/
+// 			for (let i = 0; i < json.length; i++) {
+// 				let event = {
+// 					id: json[i].id,
+// 					summary: json[i].summary,
+// 					location: json[i].location,
+// 					start: json[i].start,
+// 					end: json[i].end,
+// 					status: json[i].status
+// 				};
+// 				eventsArray.push(event);
+// 				console.log(eventsArray);
+// 			}
+// 			return callback(null, eventsArray);
+// 		});
+// 	}*/
 
 	
 	
@@ -210,7 +222,7 @@ function listAllEventsInCalendar(calendarId,callback) {
 }
 
 	
-function listSingleEventsWithinDateRange(calendarId, startDateTime, endDateTime, query) {
+function listSingleEventsWithinDateRange(calendarId, startDateTime, endDateTime, query,callback) {
 	let eventsArray = [];
 	let params = {
 		timeMin: startDateTime,
@@ -219,7 +231,6 @@ function listSingleEventsWithinDateRange(calendarId, startDateTime, endDateTime,
 		singleEvents: true,
 		orderBy: 'startTime'
 	}
-
 	cal.Events.list(calendarId, params)
 		.then(json => {
 			for (let i = 0; i < json.length; i++) {
@@ -236,6 +247,8 @@ function listSingleEventsWithinDateRange(calendarId, startDateTime, endDateTime,
 
 			console.log('List of events on calendar within time-range:');
 			console.log(eventsArray);
+			return callback(null, eventsArray);
+
 
 		}).catch(err => {
 			console.log('Error: listSingleEventsWithinDateRange -' + err);
@@ -384,51 +397,11 @@ function getEvent(calendarId, eventId,callback) {
 		});
 }
 
-/*function updateEvent(calendarId, eventId, eventSummary, startDateTime, endDateTime, location, status, description, recurrenceRule,callback) {
+function updateEvent(calendarId, eventId, eventSummary, status, description,callback) {
 	let event = {
-		'start': {
-			'dateTime': startDateTime,
-			'timeZone': 'Asia/Singapore'
-		},
-		'end': {
-			'dateTime': endDateTime,
-			'timeZone': 'Asia/Singapore'
-		},
-		'location': location,
 		'summary': eventSummary,
 		'status': status,
-		'description': description,
-		'colorId': 1,
-		'recurrence': recurrenceRule
-	};
-
-	cal.Events.update(calendarId, eventId, event)
-		.then(resp => {
-			let json = resp;
-			console.log('updated event:');
-			console.log(json);
-			
-			return callback(null,json);
-		})
-		.catch(err => {
-			console.log('Error: updatedEvent-' + err);
-		});
-}*/
-
-function updateEvent(calendarId, eventId, eventSummary, startDateTime, endDateTime, status, description,callback) {
-	let event = {
-		'start': {
-			'dateTime': startDateTime
-		},
-		'end': {
-			'dateTime': endDateTime
-		},
-		
-		'summary': eventSummary,
-		'status': status,
-		'description': description,
-		'colorId': 1
-		
+		'description': description	
 	};
 
 	cal.Events.update(calendarId, eventId, event)
