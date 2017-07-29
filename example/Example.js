@@ -74,6 +74,7 @@ app.get('/list', function(req, res, next) {
 						next(err);
 					} else {
 						res.set('Content-Type', 'text/json');
+						res.set('Access-Control-Allow-Origin', '*');
 						res.status(200).json(mydocs);
 						
 					}
@@ -89,6 +90,7 @@ app.get('/event', function(req, res, next) {
 						next(err);
 					} else {
 						res.set('Content-Type', 'text/json');
+						res.set('Access-Control-Allow-Origin', '*');
 						res.status(200).json(mydocs);
 						
 					}
@@ -103,6 +105,7 @@ app.get('/listwithtime', function(req, res, next) {
 						next(err);
 					} else {
 						res.set('Content-Type', 'text/json');
+						res.set('Access-Control-Allow-Origin', '*');
 						res.status(200).json(mydocs);
 						
 					}
@@ -120,6 +123,7 @@ var  endtime = new Date(req.body.enddateTime);
 				next(err);
 			} else {
 				res.set('Content-Type', 'text/json');
+				res.set('Access-Control-Allow-Origin', '*');
 				res.status(200).json(result);
 			}
 		});
@@ -128,12 +132,15 @@ var  endtime = new Date(req.body.enddateTime);
 
 
 app.put('/update', function(req, res, next) {
-	
-	updateEvent(calendarIdList['primary'], req.body.id,req.body.status, req.body.description,function(err, result) {
+var  startime = new Date(req.body.startdateTime);
+var  endtime = new Date(req.body.enddateTime);
+
+	updateEvent(calendarIdList['primary'], req.body.id,req.body.summary,req.body.status,startime,endtime,function(err,result) {
 			if (err) {
 				next(err);
 			} else {
 				res.set('Content-Type', 'text/json');
+				res.set('Access-Control-Allow-Origin', '*');
 				res.status(200).json(result);
 			}
 		});
@@ -397,17 +404,21 @@ function getEvent(calendarId, eventId,callback) {
 		});
 }
 
-function updateEvent(calendarId, eventId, eventSummary, status, description,callback) {
+function updateEvent(calendarId, eventId, eventSummary, status,startDateTime, endDateTime,callback) {
 	let event = {
+		'start': {
+			'dateTime': startDateTime
+		},
+		'end': {
+			'dateTime': endDateTime
+		},
 		'summary': eventSummary,
-		'status': status,
-		'description': description	
+		'status': status	
 	};
-
+console.log (event);
 	cal.Events.update(calendarId, eventId, event)
 		.then(resp => {
-			let json = resp;
-			
+			let json = resp;		
 			console.log('update event:');
 			console.log(json);
 			return callback (null,json);
