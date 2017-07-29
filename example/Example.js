@@ -6,13 +6,19 @@ const cal = new CalendarAPI(CONFIG);
 const calendarIdList = CONFIG.calendarId;
 const datetime = require('node-datetime');
 
+var cors = require('cors');
+
 const express = require('express');
 const app = express();
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+// app.use(function(req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
+//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//   next();
+// });
+
+app.use(cors());
+
 /*app.use(bodyParser.json());
 app.use(bodyParser.json({
 	type : 'application/vnd.api+json'
@@ -36,7 +42,7 @@ app.configure(function() {
 				} else {
 					res.set('Content-Type', 'text/json');
 					res.send(json(mydocs));
-					
+
 					logger.info('Dashboard request fulfilled in '
 							+ appConfig.getElapsedInms('DASHBOARD')
 							+ ' milliseconds');
@@ -48,20 +54,20 @@ app.configure(function() {
 			} else {
 				res.set('Content-Type', 'text/json');
 				res.send(mydocs);
-				
+
 				logger.info('Dashboard request fulfilled in '
 						+ appConfig.getElapsedInms('DASHBOARD')
 						+ ' milliseconds');
 			}
 		});
-	
+
 	})*/
 
 
 /*app.get('/list', function(req, res) {
-	
+
 	res.json({});
-	
+
 });*/
 
 /*app.get('/list', function (request, response) {
@@ -72,7 +78,7 @@ app.configure(function() {
 
 
 app.get('/list', function(req, res, next) {
-	
+
 	listAllEventsInCalendar(calendarIdList['primary'],
 				function(err, mydocs) {
 					if (err) {
@@ -81,14 +87,14 @@ app.get('/list', function(req, res, next) {
 						res.set('Content-Type', 'text/json');
 						res.set('Access-Control-Allow-Origin', '*');
 						res.status(200).json(mydocs);
-						
+
 					}
 				});
 
 });
 
 app.get('/event', function(req, res, next) {
-	
+
 	getEvent(calendarIdList['primary'], 'ef8kv3s0cghv5adu53qet3g85o',
 				function(err, mydocs) {
 					if (err) {
@@ -97,7 +103,7 @@ app.get('/event', function(req, res, next) {
 						res.set('Content-Type', 'text/json');
 						res.set('Access-Control-Allow-Origin', '*');
 						res.status(200).json(mydocs);
-						
+
 					}
 				});
 
@@ -112,14 +118,14 @@ app.get('/listwithtime', function(req, res, next) {
 						res.set('Content-Type', 'text/json');
 						res.set('Access-Control-Allow-Origin', '*');
 						res.status(200).json(mydocs);
-						
+
 					}
 				});
 
 });
 
 app.post('/insert', function(req, res, next) {
-	
+
 var  startime = new Date(req.body.startdateTime);
 var  endtime = new Date(req.body.enddateTime);
 
@@ -132,7 +138,7 @@ var  endtime = new Date(req.body.enddateTime);
 				res.status(200).json(result);
 			}
 		});
-	
+
 });
 
 
@@ -149,7 +155,7 @@ var  endtime = new Date(req.body.end.dateTime);
 				res.status(200).json(result);
 			}
 		});
-	
+
 });
 
 	app.listen(8000, function () {
@@ -178,13 +184,13 @@ var  endtime = new Date(req.body.end.dateTime);
 
 // 	// checkBusy(calendarIdList['primary'], '2017-05-20T09:00:00+08:00', '2017-05-20T21:00:00+08:00');
 // }
-	
-	
+
+
 // 	/*function listevents(calendarId,callback){
 // 		var params = {};
 // 		var eventsArray = [];
 // 		cal.Events.list(calendarId, params).then(function(json){
-		
+
 // 			for (let i = 0; i < json.length; i++) {
 // 				let event = {
 // 					id: json[i].id,
@@ -201,13 +207,13 @@ var  endtime = new Date(req.body.end.dateTime);
 // 		});
 // 	}*/
 
-	
-	
-	
-	
+
+
+
+
 function listAllEventsInCalendar(calendarId,callback) {
 	let eventsArray = [];
-	
+
 	let params = {};
     cal.Events.list(calendarId, params)
 		.then(json => {
@@ -225,15 +231,15 @@ function listAllEventsInCalendar(calendarId,callback) {
 			//console.log('List of all events on calendar');
 			console.log(eventsArray);
 			return callback(null, eventsArray);
-			
+
 		}).catch(err => {
 			console.log('Error: listAllEventsInCalendar -' + err);
 		});
-	
-	
+
+
 }
 
-	
+
 function listSingleEventsWithinDateRange(calendarId, startDateTime, endDateTime, query,callback) {
 	let eventsArray = [];
 	let params = {
@@ -418,12 +424,12 @@ function updateEvent(calendarId, eventId, eventSummary, status,startDateTime, en
 			'dateTime': endDateTime
 		},
 		'summary': eventSummary,
-		'status': status	
+		'status': status
 	};
 console.log (event);
 	cal.Events.update(calendarId, eventId, event)
 		.then(resp => {
-			let json = resp;		
+			let json = resp;
 			console.log('update event:');
 			console.log(json);
 			return callback (null,json);
