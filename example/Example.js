@@ -5,13 +5,112 @@ const CalendarAPI = require('../src/CalendarAPI');
 const cal = new CalendarAPI(CONFIG);
 const calendarIdList = CONFIG.calendarId;
 
-examples();
+const express = require('express');
+const app = express();
+/*app.use(bodyParser.json());
+app.use(bodyParser.json({
+	type : 'application/vnd.api+json'
+}));
+app.use(bodyParser.urlencoded({
+	extended : true
+}));
+app.use(methodOverride('X-HTTP-Method-Override'));*/
+
+app.configure(function() {
+    app.use(express.bodyParser()); // used to parse JSON object given in the request body
+});
+
+/*app.get('/', function (req, res) {
+	//res.set('Content-Type', 'text/json');
+	  //res.send('Hello World!')
+	/*examples(
+			function(err, mydocs) {
+				if (err) {
+					next(err);
+				} else {
+					res.set('Content-Type', 'text/json');
+					res.send(json(mydocs));
+					
+					logger.info('Dashboard request fulfilled in '
+							+ appConfig.getElapsedInms('DASHBOARD')
+							+ ' milliseconds');
+				}
+			});
+	  listAllEventsInCalendar(calendarIdList['primary'],function(err, mydocs) {
+			if (err) {
+				next(err);
+			} else {
+				res.set('Content-Type', 'text/json');
+				res.send(mydocs);
+				
+				logger.info('Dashboard request fulfilled in '
+						+ appConfig.getElapsedInms('DASHBOARD')
+						+ ' milliseconds');
+			}
+		});
+	
+	})*/
+
+
+/*app.get('/list', function(req, res) {
+	
+	res.json({});
+	
+});*/
+
+/*app.get('/list', function (request, response) {
+	let params = {};
+	response.set('Content-Type', 'application/json');
+    response.json({list: listevents(calendarIdList['primary'])});
+});*/
+
+
+app.get('/list', function(req, res, next) {
+	
+	listAllEventsInCalendar(calendarIdList['primary'],
+				function(err, mydocs) {
+					if (err) {
+						next(err);
+					} else {
+						res.set('Content-Type', 'text/json');
+						res.status(200).json(mydocs);
+						
+					}
+				});
+
+});
+
+app.post('/insert', function(req, res, next) {
+	
+
+	insertEvent(calendarIdList['primary'], 'TestEventName', '2017-05-20T12:00:00+08:00', '2017-05-20T15:00:00+08:00', 'location', 'confirmed', 'some description here', function(err, result) {
+			if (err) {
+				next(err);
+			} else {
+				res.set('Content-Type', 'text/json');
+				res.status(200).json(result);
+			}
+		});
+	
+});
+
+
+
+
+
+	app.listen(3000, function () {
+	  console.log('Example app listening on port 3000!')
+	})
+
+//var clientDir = path.join(__dirname, properties.get('app.clientdir'));
+
+//examples();
 
 function examples() {
-	listAllEventsInCalendar(calendarIdList['primary']);
+	//return listAllEventsInCalendar(calendarIdList['primary']);
 	// listSingleEventsWithinDateRange(calendarIdList['primary'], '2017-05-20T06:00:00+08:00', '2017-05-25T22:00:00+08:00', '');
 	// listRecurringEventsWithinDateRange(calendarIdList['drone'], '2017-05-20T06:00:00+08:00', '2017-05-20T22:00:00+08:00', '');
-	// insertEvent(calendarIdList['primary'], 'TestEventName', '2017-05-20T12:00:00+08:00', '2017-05-20T15:00:00+08:00', 'location', 'confirmed', 'some description here');
+	insertEvent(calendarIdList['primary'], 'TestEventName', '2017-05-20T12:00:00+08:00', '2017-05-20T15:00:00+08:00', 'location', 'confirmed', 'some description here');
 	// insertRecurringEvent(calendarIdList['primary'], 'TestRecurringEvent', '2017-05-20T10:00:00+08:00', '2017-05-20T11:00:00+08:00', 'location', 'confirmed', 'description', ['RRULE:FREQ=WEEKLY;COUNT=3'])
 	// quickAddEvent(calendarIdList['primary'], 'Breakfast 9am - 11am');
 	// getEvent(calendarIdList['primary'], 'algjb8m5jdjcgmptc3dqbcg3fc');
@@ -25,11 +124,38 @@ function examples() {
 
 	// checkBusy(calendarIdList['primary'], '2017-05-20T09:00:00+08:00', '2017-05-20T21:00:00+08:00');
 }
+	
+	
+	/*function listevents(calendarId,callback){
+		var params = {};
+		var eventsArray = [];
+		cal.Events.list(calendarId, params).then(function(json){
+		
+			for (let i = 0; i < json.length; i++) {
+				let event = {
+					id: json[i].id,
+					summary: json[i].summary,
+					location: json[i].location,
+					start: json[i].start,
+					end: json[i].end,
+					status: json[i].status
+				};
+				eventsArray.push(event);
+				console.log(eventsArray);
+			}
+			return callback(null, eventsArray);
+		});
+	}*/
 
-function listAllEventsInCalendar(calendarId) {
+	
+	
+	
+	
+function listAllEventsInCalendar(calendarId,callback) {
 	let eventsArray = [];
+	
 	let params = {};
-	cal.Events.list(calendarId, params)
+    cal.Events.list(calendarId, params)
 		.then(json => {
 			for (let i = 0; i < json.length; i++) {
 				let event = {
@@ -42,11 +168,15 @@ function listAllEventsInCalendar(calendarId) {
 				};
 				eventsArray.push(event);
 			}
-			console.log('List of all events on calendar');
+			//console.log('List of all events on calendar');
 			console.log(eventsArray);
+			return callback(null, eventsArray);
+			
 		}).catch(err => {
 			console.log('Error: listAllEventsInCalendar -' + err);
 		});
+	
+	
 }
 
 	
@@ -129,7 +259,44 @@ function quickAddEvent(calendarId, text) {
 		});
 }
 
-function insertEvent(calendarId, eventSummary, startDateTime, endDateTime, location, status, description) {
+function insertEvent(calendarId, eventSummary, startDateTime, endDateTime, location, status, description,callback) {
+	let event = {
+		'start': {
+			'dateTime': startDateTime
+		},
+		'end': {
+			'dateTime': endDateTime
+		},
+		'location': location,
+		'summary': eventSummary,
+		'status': status,
+		'description': description,
+		'colorId': 1
+	};
+
+	cal.Events.insert(calendarId, event)
+		.then(resp => {
+			let json = resp;
+			let results = {
+				id: json.id,
+				'summary': json.summary,
+				'location': json.location,
+				'status': json.status,
+				'htmlLink': CALENDAR_URL,
+				'start': json.start.dateTime,
+				'end': json.end.dateTime,
+				'created': new Date(json.created)
+			};
+			console.log('inserted event:');
+			console.log(results);
+			return callback(null,results);
+		})
+		.catch(err => {
+			console.log('Error: insertEvent-' + err);
+		});
+}
+
+/*function insertEvent(calendarId, eventSummary, startDateTime, endDateTime, location, status, description) {
 	let event = {
 		'start': {
 			'dateTime': startDateTime
@@ -163,7 +330,7 @@ function insertEvent(calendarId, eventSummary, startDateTime, endDateTime, locat
 		.catch(err => {
 			console.log('Error: insertEvent-' + err);
 		});
-}
+}*/
 
 function insertRecurringEvent(calendarId, eventSummary, startDateTime, endDateTime, location, status, description, recurrenceRule) {
 	let event = {
