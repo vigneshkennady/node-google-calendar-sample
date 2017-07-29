@@ -137,8 +137,8 @@ var  endtime = new Date(req.body.enddateTime);
 
 
 app.put('/update', function(req, res, next) {
-var  startime = new Date(req.body.startdateTime);
-var  endtime = new Date(req.body.enddateTime);
+var  startime = new Date(req.body.start.dateTime);
+var  endtime = new Date(req.body.end.dateTime);
 
 	updateEvent(calendarIdList['primary'], req.body.id,req.body.summary,req.body.status,startime,endtime,function(err,result) {
 			if (err) {
