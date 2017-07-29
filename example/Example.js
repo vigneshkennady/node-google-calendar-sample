@@ -80,6 +80,21 @@ app.get('/list', function(req, res, next) {
 
 });
 
+app.get('/event', function(req, res, next) {
+	
+	getEvent(calendarIdList['primary'], 'ef8kv3s0cghv5adu53qet3g85o',
+				function(err, mydocs) {
+					if (err) {
+						next(err);
+					} else {
+						res.set('Content-Type', 'text/json');
+						res.status(200).json(mydocs);
+						
+					}
+				});
+
+});
+
 app.post('/insert', function(req, res, next) {
 	
 
@@ -95,11 +110,26 @@ app.post('/insert', function(req, res, next) {
 });
 
 
+app.put('/update', function(req, res, next) {
+	
+
+	updateEvent(calendarIdList['primary'], 'ef8kv3s0cghv5adu53qet3g85o', 'TestEventName', '2017-05-26T12:00:00+08:00', '2017-05-26T12:00:00+08:00','confirmed', 'some descriptions here', function(err, result) {
+			if (err) {
+				next(err);
+			} else {
+				res.set('Content-Type', 'text/json');
+				res.status(200).json(result);
+			}
+		});
+	
+});
 
 
 
-	app.listen(3000, function () {
-	  console.log('Example app listening on port 3000!')
+
+
+	app.listen(8000, function () {
+	  console.log('Example app listening on port 8000!')
 	})
 
 //var clientDir = path.join(__dirname, properties.get('app.clientdir'));
@@ -296,41 +326,6 @@ function insertEvent(calendarId, eventSummary, startDateTime, endDateTime, locat
 		});
 }
 
-/*function insertEvent(calendarId, eventSummary, startDateTime, endDateTime, location, status, description) {
-	let event = {
-		'start': {
-			'dateTime': startDateTime
-		},
-		'end': {
-			'dateTime': endDateTime
-		},
-		'location': location,
-		'summary': eventSummary,
-		'status': status,
-		'description': description,
-		'colorId': 1
-	};
-
-	cal.Events.insert(calendarId, event)
-		.then(resp => {
-			let json = resp;
-			let results = {
-				id: json.id,
-				'summary': json.summary,
-				'location': json.location,
-				'status': json.status,
-				'htmlLink': CALENDAR_URL,
-				'start': json.start.dateTime,
-				'end': json.end.dateTime,
-				'created': new Date(json.created)
-			};
-			console.log('inserted event:');
-			console.log(results);
-		})
-		.catch(err => {
-			console.log('Error: insertEvent-' + err);
-		});
-}*/
 
 function insertRecurringEvent(calendarId, eventSummary, startDateTime, endDateTime, location, status, description, recurrenceRule) {
 	let event = {
@@ -375,20 +370,21 @@ function deleteEvent(calendarId, eventId) {
 		});
 }
 
-function getEvent(calendarId, eventId) {
+function getEvent(calendarId, eventId,callback) {
 	let params = {};
 
-	return cal.Events.get(calendarId, eventId, params)
+	 cal.Events.get(calendarId, eventId, params)
 		.then(resp => {
 			console.log('GetEvent: ' + eventId);
 			console.log(resp);
+			return callback(null,resp);
 		})
 		.catch(err => {
 			console.log('Error: getEvent-' + err);
 		});
 }
 
-function updateEvent(calendarId, eventId, eventSummary, startDateTime, endDateTime, location, status, description, recurrenceRule) {
+/*function updateEvent(calendarId, eventId, eventSummary, startDateTime, endDateTime, location, status, description, recurrenceRule,callback) {
 	let event = {
 		'start': {
 			'dateTime': startDateTime,
@@ -411,9 +407,40 @@ function updateEvent(calendarId, eventId, eventSummary, startDateTime, endDateTi
 			let json = resp;
 			console.log('updated event:');
 			console.log(json);
+			
+			return callback(null,json);
 		})
 		.catch(err => {
 			console.log('Error: updatedEvent-' + err);
+		});
+}*/
+
+function updateEvent(calendarId, eventId, eventSummary, startDateTime, endDateTime, status, description,callback) {
+	let event = {
+		'start': {
+			'dateTime': startDateTime
+		},
+		'end': {
+			'dateTime': endDateTime
+		},
+		
+		'summary': eventSummary,
+		'status': status,
+		'description': description,
+		'colorId': 1
+		
+	};
+
+	cal.Events.update(calendarId, eventId, event)
+		.then(resp => {
+			let json = resp;
+			
+			console.log('update event:');
+			console.log(json);
+			return callback (null,json);
+		})
+		.catch(err => {
+			console.log('Error: updateEvent-' + err);
 		});
 }
 
