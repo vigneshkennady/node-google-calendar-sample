@@ -4,7 +4,7 @@ const SERVICE_ACCT_ID = 'priyam1@melodic-eye-175118.iam.gserviceaccount.com';
 const TIMEZONE = 'UTC+08:00';
 const CALENDAR_ID = 
 {
-	'primary': 'priyamayilsamy11@gmail.com'
+	'primary': 'iecvcnsnfl7s1ui70e7jfr18vk@group.calendar.google.com'
 };
 
 //Example for using json keys

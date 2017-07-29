@@ -49,6 +49,7 @@ function listAllEventsInCalendar(calendarId) {
 		});
 }
 
+	
 function listSingleEventsWithinDateRange(calendarId, startDateTime, endDateTime, query) {
 	let eventsArray = [];
 	let params = {
